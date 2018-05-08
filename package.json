@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "start": "node server.js",
-    "server": "nodemon server.js"
+    "server": "nodemon server.js",
+    "test": "standard server.js --fix"
   },
   "author": "Saul Flores",
   "license": "MIT",
@@ -20,6 +21,7 @@
     "validator": "^10.1.0"
   },
   "devDependencies": {
-    "nodemon": "^1.17.4"
+    "nodemon": "^1.17.4",
+    "standard": "^11.0.1"
   }
 }
