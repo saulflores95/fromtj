@@ -4,6 +4,9 @@ const bycrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const keys = require('../../config/keys')
 const passport = require('passport')
+//Load Input Validation
+const validateRegisterInput = require('../../validation/register')
+const validateLoginInput = require('../../validation/login')
 //Load user model
 const User = require('../models/User')
 //@route  GET api/users/test
@@ -16,13 +19,18 @@ router.get('/test', (req, res) => {
 //@desc   Register a user
 //access  Public
 router.post('/register', (req, res) => {
+  const {errors, isValid} = validateRegisterInput(req.body)
+  //Check Validation
+  if(!isValid) {
+    return res.status(400).json(errors)
+  }
+  console.log('passed')
   const { email, name, avatar, password } = req.body
   User.findOne({ email })
       .then(user => {
         if(user) {
-          return res.status(400).json({
-            email: 'Email already exists'
-          })
+          errors.email = 'Email already exists'
+          return res.status(400).json(errors)
         } else {
           const newUser = new User({
             name,
@@ -46,12 +54,19 @@ router.post('/register', (req, res) => {
 //@desc   Register a user
 //access  Public
 router.post('/login',(req, res) => {
+  const {errors, isValid} = validateLoginInput(req.body)
+  //Check Validation
+  if(!isValid) {
+    return res.status(400).json(errors)
+  }
   const { email, password } = req.body
+  //Find user by email
   User.findOne({email}).then(user => {
     //Check for user
-    if(!user)
-      return res.status(400).json({email: 'User not found'})
-    //Check password
+    if(!user) {
+      errors.email = 'User not found'
+      return res.status(400).json(errors)
+    }//Check password
     bycrypt.compare(password, user.password)
     .then(isMatch => {
         if(isMatch){
@@ -72,7 +87,8 @@ router.post('/login',(req, res) => {
               })
           })
         } else {
-          return res.status(400).json({password: 'Password Icorrect'})
+          errors.password = 'Password Incorrect'
+          return res.status(400).json(errors)
         }
     })
   })
